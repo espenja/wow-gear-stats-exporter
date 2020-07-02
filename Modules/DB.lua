@@ -131,15 +131,21 @@ local slotNames = {
 }
 
 local modifiers = {
-   [1] = "Stamina",
-   [2] = "Intellect",
-   [3] = "Armor",
-   [4] = "Critical Strike",
-   [5] = "Haste",
-   [6] = "Mastery",
-   [7] = "Versatility",
-   [8] = "Corruption",
-   [9] = "Socket"
+   [1] = "Armor",
+   [2] = "Stamina",
+   [3] = "Agility",
+   [4] = "Strength",
+   [5] = "Intellect",
+   [6] = "Corruption",
+   [7] = "Critical Strike",
+   [8] = "Haste",
+   [9] = "Mastery",
+   [10] = "Versatility",
+   [11] = "Socket",
+   [12] = "Speed",
+   [13] = "Leech",
+   [14] = "Avoidance",
+   [15] = "Indestructible"
 }
 
 local extraModifiers = {
@@ -150,21 +156,26 @@ local extraModifiers = {
 }
 
 local socketModifiers = {
-   [1] = "Critical Strike",
-   [2] = "Haste",
-   [3] = "Mastery",
-   [4] = "Versatility"
+   [1] = "Agility",
+   [2] = "Strength",
+   [3] = "Intelligence",
+   [4] = "Critical Strike",
+   [5] = "Haste",
+   [6] = "Mastery",
+   [7] = "Versatility"
 }
 
 local headerOrder = {
-   ["Stamina"] = false,
-   ["Intellect"] = false,
    ["Armor"] = false,
+   ["Stamina"] = false,
+   ["Agility"] = false,
+   ["Strength"] = false,
+   ["Intellect"] = false,
+   ["Corruption"] = false,
    ["Critical Strike"] = false,
    ["Haste"] = false,
    ["Mastery"] = false,
    ["Versatility"] = false,
-   ["Corruption"] = false,
    ["Socket"] = false,
    ["Speed"] = false,
    ["Leech"] = false,
@@ -198,6 +209,10 @@ end
 
 function Module:GetSocketModifiers()
    return socketModifiers
+end
+
+function Module:GetHeaderOrder()
+   return headerOrder
 end
 
 -- Get item modifier name from global constants

@@ -34,7 +34,7 @@ function printTable(t, tab)
             print(tab, k .. ":")
             printTable(v, tab)
         else
-            print(tab, k .. ": " .. v)
+            print(tab, k .. ": " .. tostring(v))
         end
     end
 end
@@ -73,7 +73,7 @@ function Module:MakeCsv()
     local playerName, realm = UnitName("player")
     local header = self:MakeHeader()
 
-    print(header)
+    -- print(header)
 
     for _, equipmentSlotName in ipairs(slots) do
         local item = itemTable[equipmentSlotName]
@@ -90,70 +90,70 @@ function Module:MakeCsv()
                 end
             end
 
-            for _, modifier in ipairs(DB:GetExtraModifiers()) do
-                if item.itemStats[modifier] then
-                    line = line .. "," .. item.itemStats[modifier]
-                end
-            end
+        -- for _, modifier in ipairs(DB:GetExtraModifiers()) do
+        --     if item.itemStats[modifier] then
+        --         line = line .. "," .. item.itemStats[modifier]
+        --     end
+        -- end
         end
     end
 end
 
 function Module:MakeHeader()
     local slots = DB:GetSlots()
-    local added = {}
-    local hasSockets = false
-    local addedSockets = {}
-    local socketReplacement = ""
-
-    local header = "Slot,Name,iLvl"
+    local hasCorruption = false
+    local socketModifiers = {}
+    local modifiersOnGear = {
+        ["Armor"] = false,
+        ["Stamina"] = false,
+        ["Agility"] = false,
+        ["Strength"] = false,
+        ["Intellect"] = false,
+        ["Corruption"] = false,
+        ["Critical Strike"] = false,
+        ["Haste"] = false,
+        ["Mastery"] = false,
+        ["Versatility"] = false,
+        ["Socket"] = false,
+        ["Speed"] = false,
+        ["Leech"] = false,
+        ["Avoidance"] = false,
+        ["Indestructible"] = false
+    }
 
     for _, equipmentSlotName in ipairs(slots) do
         local item = itemTable[equipmentSlotName]
 
         if item ~= nil then
-            for _, modifier in ipairs(DB:GetModifiers()) do
+            for modifier, _ in pairs(item.itemStats) do
+                modifiersOnGear[modifier] = true
+
                 if modifier == "Socket" then
-                    local socket = item.itemStats["Socket"]
-
-                    if socket ~= nil then
-                        if addedSockets[socket.stat] == nil then
-                            addedSockets[socket.stat] = true
-                        end
-                    end
-
-                    if hasSockets == false then
-                        hasSockets = true
-                        header = header .. "," .. "socket"
-                    end
-                else
-                    if added[modifier] == nil then
-                        if item.itemStats[modifier] ~= nil then
-                            added[modifier] = true
-                            header = header .. "," .. modifier
-                        end
-                    end
-                end
-            end
-
-            for _, modifier in ipairs(DB:GetExtraModifiers()) do
-                if added[modifier] == nil then
-                    if item.itemStats[modifier] ~= nil then
-                        added[modifier] = true
-                        header = header .. "," .. modifier
-                    end
+                    local socket = item.itemStats[modifier]
+                    socketModifiers[socket.stat] = true
                 end
             end
         end
     end
 
-    local socketHeaders = ""
+    local header = "Slot,Name,iLvl"
 
-    for stat in pairs(addedSockets) do
-        socketHeaders = socketHeaders .. ", Socket " .. stat
+    for _, modifier in ipairs(DB:GetModifiers()) do
+        if modifiersOnGear[modifier] then
+            if modifier == "Socket" then
+                for _, socketModifier in ipairs(DB:GetSocketModifiers()) do
+                    if socketModifiers[socketModifier] then
+                        header = header .. ", Socket " .. socketModifier
+                    end
+                end
+            elseif modifier == "Corruption" and hasCorruption then
+                header = header .. ",Corruption,Corruption Value"
+            else
+                header = header .. "," .. modifier
+            end
+        end
     end
 
-    gsub(header, "socket", socketHeaders)
     return header
 end
 
@@ -187,19 +187,25 @@ function Module:CreateItemStats(itemLink)
     local customItemStats = {}
     local itemStats = GetItemStats(itemLink)
     local corruption = self:GetCorruptionByItemLink(itemLink)
+    local corruptionValue = nil
 
     for key, value in pairs(itemStats) do
         local modName = DB:GetItemModifierName(key)
 
+        print(key)
+
         if key == "EMPTY_SOCKET_PRISMATIC" then
             customItemStats["Socket"] = self:GetGemStats(itemStats, itemLink)
+        elseif key == "ITEM_MOD_CORRUPTION" then
+            corruptionValue = value
         else
-            print(modName)
+            -- print(modName)
             customItemStats[modName] = value
         end
     end
 
     if corruption ~= nil then
+        corruption.value = corruptionValue
         customItemStats["Corruption"] = corruption
     end
 
