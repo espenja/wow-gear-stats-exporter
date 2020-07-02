@@ -1,0 +1,10 @@
+## Interface: 80300
+## Title: Gear Stats Exporter
+## Author: f1ct1ve (Fîctive - Tarren Mill - EU)
+## Notes: Addon for exporting your gear stats to CSV format
+## Version: 1.0.0
+
+Libs\Libs.xml
+
+GearStatsExporter.lua
+Modules\Modules.xml
